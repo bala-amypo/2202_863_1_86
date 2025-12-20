@@ -10,26 +10,27 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder) {
+    // ✅ Only UserRepository injection
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public User register(User user) {
 
+        // Duplicate email check
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new BadRequestException("Email already exists");
         }
 
+        // Default role
         if (user.getRole() == null) {
             user.setRole("USER");
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // ❗ NO encryption (because NO security)
+        user.setPassword(user.getPassword());
 
         return userRepository.save(user);
     }
