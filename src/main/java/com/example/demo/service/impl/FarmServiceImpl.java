@@ -1,3 +1,18 @@
+package com.example.demo.service.impl;
+
+import com.example.demo.entity.Farm;
+import com.example.demo.entity.User;
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.repository.FarmRepository;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.service.FarmService;
+import com.example.demo.util.ValidationUtil;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
 @Service
 @Transactional
 public class FarmServiceImpl implements FarmService {
@@ -5,32 +20,29 @@ public class FarmServiceImpl implements FarmService {
     private final FarmRepository farmRepository;
     private final UserRepository userRepository;
 
-    public FarmServiceImpl(FarmRepository farmRepository, UserRepository userRepository) {
+    public FarmServiceImpl(FarmRepository farmRepository,
+                           UserRepository userRepository) {
         this.farmRepository = farmRepository;
         this.userRepository = userRepository;
     }
 
     @Override
-    public Farm createFarm(Long ownerId, Farm farm) {
+    public Farm createFarm(Farm farm, Long ownerId) {
 
-        // 1️⃣ Validate soil pH
-        if (farm.getSoilPH() < 3.0 || farm.getSoilPH() > 10.0) {
+        if (farm.getSoilPH() < 3 || farm.getSoilPH() > 10) {
             throw new IllegalArgumentException("Invalid pH range");
         }
 
-        // 2️⃣ Validate season
         if (!ValidationUtil.validSeason(farm.getSeason())) {
-            throw new RuntimeException("Invalid season");
+            throw new IllegalArgumentException("Invalid season");
         }
 
-        // 3️⃣ Fetch owner from DB (VERY IMPORTANT)
         User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
-        // 4️⃣ Attach owner to farm
         farm.setOwner(owner);
 
-        // 5️⃣ Save farm
         return farmRepository.save(farm);
     }
 
@@ -42,6 +54,7 @@ public class FarmServiceImpl implements FarmService {
     @Override
     public Farm getFarmById(Long farmId) {
         return farmRepository.findById(farmId)
-                .orElseThrow(() -> new ResourceNotFoundException("Farm not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Farm not found"));
     }
 }
