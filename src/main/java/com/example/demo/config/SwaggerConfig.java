@@ -31,3 +31,4 @@ public OpenAPI api() {
                     new Server().url("https://9093.32procr.amypo.ai/").description("Production Server")
             ));
 }
+}
