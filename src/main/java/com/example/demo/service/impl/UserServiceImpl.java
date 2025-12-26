@@ -1,8 +1,20 @@
+package com.example.demo.service;
+
+import com.example.demo.entity.User;
+import com.example.demo.exception.BadRequestException;
+import com.example.demo.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -15,11 +27,9 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Email already exists");
         }
 
-        // encode password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        // default role
-        if (user.getRole() == null || user.getRole().isEmpty()) {
+        if (user.getRole() == null) {
             user.setRole("USER");
         }
 
