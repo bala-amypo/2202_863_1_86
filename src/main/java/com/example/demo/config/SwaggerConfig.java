@@ -23,9 +23,7 @@ public class SwaggerConfig {
                         new Server().url("https://9093.32procr.amypo.ai/").description("Production Server")
                 ));
     }
-     public OpenAPI api() {
-        return customOpenAPI();
-    }
+     
 }
 
 
