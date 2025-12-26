@@ -1,6 +1,5 @@
-// package com.example.demo.dto;
-
-// public class CropRequest {
+ package com.example.demo.dto;
+    public class CropRequest {
 //     private String name;
 //     private Double suitablePHMin;
 //     private Double suitablePHMax;
