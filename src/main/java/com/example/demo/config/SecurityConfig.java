@@ -12,14 +12,14 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
-            .csrf().disable()
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // Allow auth endpoints and Swagger for testing
-                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()   // ✅ allow everything
             )
-            .httpBasic(); // optional for testing
+            .httpBasic(httpBasic -> httpBasic.disable()); // ❌ disable popup
+
         return http.build();
     }
 
