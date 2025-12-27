@@ -32,7 +32,7 @@ public class SwaggerConfig {
                                 .name("Apache 2.0")
                                 .url("http://springdoc.org")))
                 .servers(List.of(
-                        new Server().url("http://localhost:9001").description("Local Development"),
+                        new Server().url("https://9093.32procr.amypo.ai/").description("Local Development"),
                         new Server().url("https://9093.32procr.amypo.ai/").description("Production")
                 ))
 
