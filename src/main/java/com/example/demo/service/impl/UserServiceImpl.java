@@ -3,47 +3,36 @@ package com.example.demo.service;
 import com.example.demo.entity.User;
 import com.example.demo.exception.BadRequestException;
 import com.example.demo.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public User register(User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+        userRepository.findByEmail(user.getEmail()).ifPresent(u -> {
             throw new BadRequestException("Email already exists");
-        }
+        });
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        if (user.getRole() == null) {
-            user.setRole("USER");
-        }
-
+        if (user.getRole() == null) user.setRole("USER");
         return userRepository.save(user);
     }
 
     @Override
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
+        return userRepository.findByEmail(email).orElseThrow(() -> new BadRequestException("User not found by email"));
     }
 
     @Override
     public User findById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+        return userRepository.findById(id).orElseThrow(() -> new BadRequestException("User not found"));
     }
 }
