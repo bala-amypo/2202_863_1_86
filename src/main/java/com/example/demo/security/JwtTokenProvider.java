@@ -1,53 +1,41 @@
 package com.example.demo.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
-
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class JwtTokenProvider {
-
-    private static final String SECRET_KEY = "my-secret-key-my-secret-key-my-secret-key";
-    private final long validityInMilliseconds = 3600000;
-
+    private final long validityInMilliseconds = 3600000; // 1h
+    private final Map<String, Map<String, Object>> tokenStore = new HashMap<>();
+    
     public String createToken(Long userId, String email, String role) {
-        Claims claims = Jwts.claims().setSubject(email);
+        String token = "token_" + userId + "_" + System.currentTimeMillis();
+        Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
+        claims.put("email", email);
         claims.put("role", role);
-
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + validityInMilliseconds);
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(expiry)
-                .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()), SignatureAlgorithm.HS256)
-                .compact();
+        claims.put("exp", new Date(System.currentTimeMillis() + validityInMilliseconds));
+        tokenStore.put(token, claims);
+        return token;
     }
-
+    
     public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(SECRET_KEY.getBytes())
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+        if (!tokenStore.containsKey(token)) return false;
+        Date exp = (Date) tokenStore.get(token).get("exp");
+        return exp.after(new Date());
     }
-
+    
     public String getEmail(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY.getBytes())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        return (String) tokenStore.get(token).get("email");
+    }
+    
+    public Long getUserId(String token) {
+        return (Long) tokenStore.get(token).get("userId");
+    }
+    
+    public String getRole(String token) {
+        return (String) tokenStore.get(token).get("role");
     }
 }
