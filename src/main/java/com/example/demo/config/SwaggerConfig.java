@@ -35,6 +35,7 @@ public class SwaggerConfig {
                         new Server().url("https://9093.32procr.amypo.ai/").description("Local Development"),
                         new Server().url("https://9093.32procr.amypo.ai/").description("Production")
                 ))
+                        new Server().url("").description("Local Development"),
 
                 // 🔐 Enable Authorize button
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
