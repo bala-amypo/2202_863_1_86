@@ -30,16 +30,19 @@ public class SwaggerConfig {
                                 .url("https://example.com"))
                         .license(new License()
                                 .name("Apache 2.0")
-                                .url("http://springdoc.org")))
+                                .url("http://springdoc.org"))
+                )
                 .servers(List.of(
-                        new Server().url("https://9093.32procr.amypo.ai/").description("Local Development"),
-                        new Server().url("https://9093.32procr.amypo.ai/").description("Production")
+                        new Server()
+                                .url("https://9093.32procr.amypo.ai/")
+                                .description("Local Development"),
+                        new Server()
+                                .url("https://9093.32procr.amypo.ai/")
+                                .description("Production")
                 ))
-
-                // 🔐 Enable Authorize button
+                // Enable Authorize button
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
-
-                // 🔑 Define JWT scheme
+                // JWT Security scheme
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",
                                 new SecurityScheme()
