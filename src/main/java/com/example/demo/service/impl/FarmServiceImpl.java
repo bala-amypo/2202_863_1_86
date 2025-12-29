@@ -6,59 +6,44 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.FarmRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
 public class FarmServiceImpl implements FarmService {
-
+    
     @Autowired
     private FarmRepository farmRepository;
-
+    
     @Autowired
     private UserRepository userRepository;
-
+    
+    public FarmServiceImpl(FarmRepository farmRepository, UserRepository userRepository) {
+        this.farmRepository = farmRepository;
+        this.userRepository = userRepository;
+    }
+    
     @Override
-    public Farm createFarm(Farm farm) {
-
-        // 1️⃣ Get logged-in user from JWT
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName(); // comes from JWT subject
-
-        User owner = userRepository.findByEmail(email)
+    public Farm createFarm(Farm farm, Long ownerId) {
+        User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        // 2️⃣ Validate soil pH
+        
         if (farm.getSoilPH() < 4.0 || farm.getSoilPH() > 9.0) {
             throw new IllegalArgumentException("Invalid pH range");
         }
-
-        // 3️⃣ Set owner
+        
         farm.setOwner(owner);
-
         return farmRepository.save(farm);
     }
-
+    
     @Override
     public Farm getFarmById(Long id) {
         return farmRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Farm not found"));
     }
-
+    
     @Override
-    public List<Farm> getMyFarms() {
-
-        // Get logged-in user
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-
-        User owner = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        // ✅ Use findByOwnerId from repository
-        return farmRepository.findByOwnerId(owner.getId());
+    public List<Farm> getFarmsByOwner(Long ownerId) {
+        return farmRepository.findByOwnerId(ownerId);
     }
 }
