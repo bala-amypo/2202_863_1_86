@@ -25,9 +25,7 @@ public class FarmServiceImpl implements FarmService {
     public Farm createFarm(Farm farm) {
 
         // 1️⃣ Get logged-in user from JWT
-        Authentication auth =
-                SecurityContextHolder.getContext().getAuthentication();
-
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName(); // comes from JWT subject
 
         User owner = userRepository.findByEmail(email)
@@ -38,7 +36,7 @@ public class FarmServiceImpl implements FarmService {
             throw new IllegalArgumentException("Invalid pH range");
         }
 
-        // 3️⃣ Set owner (THIS FIXES 500 ERROR)
+        // 3️⃣ Set owner
         farm.setOwner(owner);
 
         return farmRepository.save(farm);
@@ -53,14 +51,14 @@ public class FarmServiceImpl implements FarmService {
     @Override
     public List<Farm> getMyFarms() {
 
-        Authentication auth =
-                SecurityContextHolder.getContext().getAuthentication();
-
+        // Get logged-in user
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
         User owner = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        return farmRepository.findByOwner(owner);
+        // ✅ Use findByOwnerId from repository
+        return farmRepository.findByOwnerId(owner.getId());
     }
 }
