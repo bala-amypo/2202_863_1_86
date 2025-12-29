@@ -4,7 +4,8 @@ import com.example.demo.entity.Farm;
 import java.util.List;
 
 public interface FarmService {
-    Farm createFarm(Farm farm, Long ownerId);
+
+    Farm createFarm(Farm farm);      // owner comes from JWT
     Farm getFarmById(Long id);
-    List<Farm> getFarmsByOwner(Long ownerId);
+    List<Farm> getMyFarms();          // farms of logged-in user
 }
